@@ -16,6 +16,13 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
+    void displayMessage(const QString &msg);
+
+signals:
+    void testClickDetected(int x, int y);
+
+private slots:
+    void on_testButton_clicked();
 
 private:
     Ui::MainWindow *ui;
