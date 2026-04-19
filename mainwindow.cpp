@@ -23,5 +23,4 @@ void MainWindow::on_testButton_clicked()
 void MainWindow::displayMessage(const QString &msg)
 {
     qDebug() << "4. VIEW: Received final message:" << msg;
-    ui->testButton->setText("Test Passed!"); // Visually change the button text
 }
