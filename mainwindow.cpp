@@ -6,6 +6,8 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    this->setWindowTitle("Szachy");
+    this->setWindowFlags(Qt::FramelessWindowHint);
 }
 
 MainWindow::~MainWindow()
@@ -23,5 +25,4 @@ void MainWindow::on_testButton_clicked()
 void MainWindow::displayMessage(const QString &msg)
 {
     qDebug() << "4. VIEW: Received final message:" << msg;
-    ui->testButton->setText("Test Passed!"); // Visually change the button text
 }
