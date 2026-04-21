@@ -6,25 +6,236 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1920</width>
+    <height>1080</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>MainWindow</string>
+  <property name="minimumSize">
+   <size>
+    <width>1920</width>
+    <height>1080</height>
+   </size>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>800</width>
-     <height>21</height>
-    </rect>
+  <property name="maximumSize">
+   <size>
+    <width>1920</width>
+    <height>1080</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Szachy</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet">
+    <string notr="true">
+QWidget#centralwidget {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #1e1e1e, stop:1 #333333);
+}
+
+QPushButton {
+    background-color: #404040;
+    color: #ffffff;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 22px;
+    font-weight: bold;
+    border: 2px solid #555555;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+QPushButton:hover {
+    background-color: #5a5a5a;
+    border-color: #777777;
+}
+
+QPushButton:pressed {
+    background-color: #303030;
+}
+
+QLabel#titleLabel {
+    color: #e0c08b; /* A classic chess wood/gold color */
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 96px;
+    font-weight: bold;
+}
+
+/* Specific styling just for the close button */
+QPushButton#closeButton {
+    background-color: #c0392b;
+    border: none;
+    border-radius: 30px;
+    color: white;
+    font-size: 28px;
+    min-width: 60px;
+    min-height: 60px;
+    max-width: 60px;
+    max-height: 60px;
+}
+
+QPushButton#closeButton:hover {
+    background-color: #e74c3c;
+}
+    </string>
    </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item row="0" column="0">
+     <widget class="QStackedWidget" name="stackedWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="page_MainMenu">
+       <layout class="QGridLayout" name="gridLayout_MainMenu" rowstretch="0,1,0,0,0,0,1" columnstretch="1,0,0,1,0">
+        <property name="leftMargin">
+         <number>135</number>
+        </property>
+        <property name="topMargin">
+         <number>45</number>
+        </property>
+        <property name="rightMargin">
+         <number>45</number>
+        </property>
+        <property name="bottomMargin">
+         <number>135</number>
+        </property>
+        <property name="horizontalSpacing">
+         <number>20</number>
+        </property>
+        <property name="verticalSpacing">
+         <number>30</number>
+        </property>
+        <item row="0" column="4">
+         <widget class="QPushButton" name="closeButton">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>X</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" rowspan="6">
+         <spacer name="horizontalSpacer_Left">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="3" rowspan="6">
+         <spacer name="horizontalSpacer_Right">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="1" colspan="2">
+         <spacer name="verticalSpacer_Top">
+          <property name="orientation">
+           <enum>Qt::Orientation::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="2" column="1" colspan="2">
+         <widget class="QLabel" name="titleLabel">
+          <property name="text">
+           <string>Szachy</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1" colspan="2">
+         <widget class="QPushButton" name="btn_playPlayer">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>Zagraj przeciwko graczowi</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1" colspan="2">
+         <widget class="QPushButton" name="btn_playComputer">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>Zagraj przeciwko komputerowi</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QPushButton" name="btn_loadGame">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>Wczytaj grę</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2">
+         <widget class="QPushButton" name="btn_settings">
+          <property name="cursor">
+           <cursorShape>PointingHandCursor</cursorShape>
+          </property>
+          <property name="text">
+           <string>Ustawienia</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1" colspan="2">
+         <spacer name="verticalSpacer_Bottom">
+          <property name="orientation">
+           <enum>Qt::Orientation::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_GameBoard">
+       <layout class="QGridLayout" name="gridLayout_GameBoard"/>
+      </widget>
+     </widget>
+    </item>
+   </layout>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
  <connections/>

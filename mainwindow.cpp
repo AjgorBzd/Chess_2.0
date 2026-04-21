@@ -6,6 +6,8 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    this->setWindowTitle("Szachy");
+    this->setWindowFlags(Qt::FramelessWindowHint);
 }
 
 MainWindow::~MainWindow()
