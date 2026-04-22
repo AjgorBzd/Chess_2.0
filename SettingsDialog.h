@@ -21,6 +21,9 @@ private slots:
     void on_spin_p1Time_valueChanged(int arg1);
     void on_spin_p1Inc_valueChanged(int arg1);
 
+    void on_btn_p1Avatar_clicked();
+    void on_btn_p2Avatar_clicked();
+
 private:
     Ui::SettingsDialog *ui;
     GameSettings m_settings;

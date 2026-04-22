@@ -26,6 +26,7 @@ signals:
 
 private slots:
     void on_closeButton_clicked();
+    void on_btn_closeGame_clicked();
 
     void on_btn_playPlayer_clicked();
     void on_btn_playComputer_clicked();

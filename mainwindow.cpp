@@ -84,6 +84,11 @@ void MainWindow::on_closeButton_clicked()
     this->close();
 }
 
+void MainWindow::on_btn_closeGame_clicked()
+{
+    this->close();
+}
+
 void MainWindow::on_btn_playPlayer_clicked()
 {
     ui->pageManager->setCurrentIndex(1);
@@ -203,11 +208,29 @@ void MainWindow::openSettingsDialog(const GameSettings& currentSettings, bool is
     }
 }
 
+QPixmap makeSquareAvatar(const QString& imagePath, int size) {
+    QPixmap original(imagePath);
+    if (original.isNull()) return QPixmap(); // Return empty if not found
+
+    int shortest = std::min(original.width(), original.height());
+    int x = (original.width() - shortest) / 2;
+    int y = (original.height() - shortest) / 2;
+
+    // Crop to center square, then scale smoothly
+    QPixmap square = original.copy(x, y, shortest, shortest);
+    return square.scaled(size, size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+}
+
 void MainWindow::applySettingsToUI(const GameSettings& settings)
 {
-    // Update the player names on the board screen
+    ui->p1Name->setFixedWidth(150);
+    ui->p2Name->setFixedWidth(150);
+
     ui->p1Name->setText(QString::fromStdString(settings.p1Name));
     ui->p2Name->setText(QString::fromStdString(settings.p2Name));
+
+    ui->p1Icon->setPixmap(makeSquareAvatar(QString::fromStdString(settings.p1AvatarPath), 80));
+    ui->p2Icon->setPixmap(makeSquareAvatar(QString::fromStdString(settings.p2AvatarPath), 80));
 
     // Format the timers (e.g., 300 seconds -> "05:00")
     int p1Mins = settings.p1BaseTimeSeconds / 60;
