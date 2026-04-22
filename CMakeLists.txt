@@ -17,8 +17,8 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
-        ChessModel.cpp
-        ChessModel.h
+
+
         GameController.cpp
         GameController.h
 )
@@ -27,11 +27,17 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(Chess2_0
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        ChessModel.h
-        ChessModel.h ChessModel.cpp
+
+
         GameController.h GameController.cpp
         resources.qrc
         images/black_bishop.png images/black_king.png images/black_knight.png images/black_pawn.png images/black_queen.png images/black_rook.png images/white_bishop.png images/white_king.png images/white_knight.png images/white_pawn.png images/white_queen.png images/white_rook.png
+        Pieces.h
+
+        ChessBoard.cpp
+        ChessEnums.h
+        ChessBoard.h
+        ChessGame.h ChessGame.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET Chess2_0 APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
