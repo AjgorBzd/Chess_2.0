@@ -26,6 +26,7 @@ public:
         return (color == PieceColor::White) ? playerWhite : playerBlack;
     }
     bool attemptMove(int fromRow, int fromCol, int toRow, int toCol);
+    bool canPickUp(int row, int col) const;
 
 signals:
 

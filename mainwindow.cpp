@@ -86,7 +86,7 @@ void MainWindow::on_closeButton_clicked()
 
 void MainWindow::on_btn_closeGame_clicked()
 {
-    this->close();
+    ui->pageManager->setCurrentIndex(0);
 }
 
 void MainWindow::on_btn_playPlayer_clicked()

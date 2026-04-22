@@ -89,24 +89,23 @@ void GameController::handleSquareClicked(int row, int col)
     // }
 
     if (!m_isPieceSelected) {
-        PieceType type = m_model->getPieceTypeAt(row, col);
-        PieceColor color = m_model->getPieceColorAt(row, col);
-
-        if (type != PieceType::Empty) {
+        if (m_model->canPickUp(row, col)) {
             m_isPieceSelected = true;
             m_selectedRow = row;
             m_selectedCol = col;
 
+            PieceType type = m_model->getPieceTypeAt(row, col);
+            PieceColor color = m_model->getPieceColorAt(row, col);
             m_view->pickUpPiece(row, col, color, type);
         }
     } else {
-        m_model->attemptMove(m_selectedRow, m_selectedCol, row, col);
-
+        bool moveSuccessful = m_model->attemptMove(m_selectedRow, m_selectedCol, row, col);
         m_isPieceSelected = false;
         m_selectedRow = -1;
         m_selectedCol = -1;
 
         m_view->dropPiece();
+
         syncBoardToView();
     }
 }

@@ -9,14 +9,12 @@ struct Position {
 
 class ChessBoard;
 
-// 3. The Base Class
 class Piece {
 protected:
-    PieceColor color;   // Moved up to the base class!
+    PieceColor color;
     bool moved = false;
 
 public:
-    // Base constructor
     Piece(PieceColor c) : color(c) {}
     virtual ~Piece() = default;
 
