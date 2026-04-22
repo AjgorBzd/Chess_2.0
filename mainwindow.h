@@ -16,15 +16,19 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
-    void displayMessage(const QString &msg);
 
 signals:
-    void testClickDetected(int x, int y);
 
 private slots:
-    void on_testButton_clicked();
+    void on_closeButton_clicked();
+    void on_btn_playPlayer_clicked();
+    void on_btn_playComputer_clicked();
+
+protected:
+    void resizeEvent(QResizeEvent *event) override;
 
 private:
     Ui::MainWindow *ui;
+    void resizeBoard();
 };
 #endif // MAINWINDOW_H

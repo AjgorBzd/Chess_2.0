@@ -13,8 +13,6 @@ public:
     GameController(ChessModel *model, MainWindow *view, QObject *parent = nullptr);
 
 public slots:
-    void handleViewClick(int x, int y);
-    void handleModelMessage(const QString &msg);
 
 private:
     ChessModel *m_model;
