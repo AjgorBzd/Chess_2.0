@@ -1,22 +1,20 @@
-#ifndef GAMECONTROLLER_H
-#define GAMECONTROLLER_H
-
+#pragma once
 #include <QObject>
 
-class ChessModel;
+class ChessGame;
 class MainWindow;
 
 class GameController : public QObject
 {
     Q_OBJECT
 public:
-    GameController(ChessModel *model, MainWindow *view, QObject *parent = nullptr);
+    GameController(ChessGame *model, MainWindow *view, QObject *parent = nullptr);
 
 public slots:
+    void handlePlayPlayerRequest();
 
 private:
-    ChessModel *m_model;
+    ChessGame *m_model;
     MainWindow *m_view;
+    void syncBoardToView();
 };
-
-#endif // GAMECONTROLLER_H
