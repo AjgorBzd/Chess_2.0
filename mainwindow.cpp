@@ -226,8 +226,20 @@ void MainWindow::applySettingsToUI(const GameSettings& settings)
     ui->p1Name->setFixedWidth(150);
     ui->p2Name->setFixedWidth(150);
 
-    ui->p1Name->setText(QString::fromStdString(settings.p1Name));
-    ui->p2Name->setText(QString::fromStdString(settings.p2Name));
+    QString p1Full = QString::fromStdString(settings.p1Name);
+    QString p2Full = QString::fromStdString(settings.p2Name);
+
+    QFontMetrics metrics1(ui->p1Name->font());
+    QString p1Elided = metrics1.elidedText(p1Full, Qt::ElideRight, 150);
+
+    QFontMetrics metrics2(ui->p2Name->font());
+    QString p2Elided = metrics2.elidedText(p2Full, Qt::ElideRight, 150);
+
+    ui->p1Name->setText(p1Elided);
+    ui->p1Name->setToolTip(p1Full);
+
+    ui->p2Name->setText(p2Elided);
+    ui->p2Name->setToolTip(p2Full);
 
     ui->p1Icon->setPixmap(makeSquareAvatar(QString::fromStdString(settings.p1AvatarPath), 80));
     ui->p2Icon->setPixmap(makeSquareAvatar(QString::fromStdString(settings.p2AvatarPath), 80));
