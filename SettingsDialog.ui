@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsDialog</class>
+ <widget class="QDialog" name="SettingsDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>550</width>
+    <height>650</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Ustawienia Gry</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">
+QDialog {
+    background-color: #2b2b2b;
+}
+
+QGroupBox {
+    color: #e0c08b;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    border: 2px solid #555555;
+    border-radius: 8px;
+    margin-top: 20px;
+    padding-top: 15px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    left: 15px;
+    padding: 0 5px;
+}
+
+QLabel, QCheckBox {
+    color: #ffffff;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 16px;
+}
+
+QCheckBox::indicator {
+    width: 20px;
+    height: 20px;
+}
+
+QLineEdit {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    border: 2px solid #555555;
+    border-radius: 6px;
+    padding: 6px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 16px;
+    min-width: 80px;
+}
+
+QSpinBox {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    border: 2px solid #555555;
+    border-radius: 6px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 16px;
+    min-width: 80px;
+}
+
+QSpinBox {
+    padding-right: 25px;
+}
+
+QSpinBox QLineEdit {
+    padding: 0px;
+}
+
+QSpinBox::up-button, QSpinBox::down-button {
+    width: 25px;
+    background-color: transparent;
+}
+
+QSpinBox::up-button:hover, QSpinBox::down-button:hover {
+    background-color: #404040;
+}
+
+QSpinBox:disabled {
+    background-color: #2b2b2b;
+    color: #777777;
+    border-color: #444444;
+}
+
+QLineEdit:focus, QSpinBox:focus {
+    border-color: #e0c08b;
+}
+
+QPushButton {
+    background-color: #404040;
+    color: #ffffff;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    border-width: 2px;
+    border-style: solid;
+    border-color: #555555;
+    border-radius: 8px;
+    padding: 12px;
+    min-width: 120px;
+}
+
+QPushButton:hover {
+    background-color: #5a5a5a;
+    border-color: #777777;
+}
+
+QPushButton:pressed { background-color: #303030; }
+
+QPushButton#btn_save { background-color: #a9cbff; color: #000000; border-color: #8bb5ff; }
+QPushButton#btn_save:hover { background-color: #8bb5ff; }
+
+QPushButton#btn_cancel { background-color: #fb8b8b; color: #000000; border-color: #e67373; }
+QPushButton#btn_cancel:hover { background-color: #e67373; }
+   </string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>20</number>
+   </property>
+   <property name="leftMargin">
+    <number>25</number>
+   </property>
+   <property name="topMargin">
+    <number>25</number>
+   </property>
+   <property name="rightMargin">
+    <number>25</number>
+   </property>
+   <property name="bottomMargin">
+    <number>25</number>
+   </property>
+   <item>
+    <widget class="QGroupBox" name="grp_boardSettings">
+     <property name="title">
+      <string>Szachownica</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="chk_autoFlip">
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="text">
+         <string>Automatyczne obracanie szachownicy po ruchu</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="grp_playerSettings">
+     <property name="title">
+      <string>Gracze</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <property name="horizontalSpacing">
+       <number>20</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>15</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_p1Name">
+        <property name="text">
+         <string>Imię Gracza 1 (Białe):</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="edit_p1Name"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_p2Name">
+        <property name="text">
+         <string>Imię Gracza 2 (Czarne):</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="edit_p2Name"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="grp_timeSettings">
+     <property name="title">
+      <string>Kontrola Czasu</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <property name="horizontalSpacing">
+       <number>20</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>15</number>
+      </property>
+      <item row="0" column="0" colspan="2">
+       <widget class="QCheckBox" name="chk_handicap">
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="text">
+         <string>Różne czasy dla graczy (Handicap)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_p1Time">
+        <property name="text">
+         <string>Czas Gracza 1 (minuty):</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="spin_p1Time">
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>180</number>
+        </property>
+        <property name="value">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_p1Inc">
+        <property name="text">
+         <string>Sekundy za ruch (P1):</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QSpinBox" name="spin_p1Inc">
+        <property name="maximum">
+         <number>60</number>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_p2Time">
+        <property name="text">
+         <string>Czas Gracza 2 (minuty):</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QSpinBox" name="spin_p2Time">
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>180</number>
+        </property>
+        <property name="value">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_p2Inc">
+        <property name="text">
+         <string>Sekundy za ruch (P2):</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QSpinBox" name="spin_p2Inc">
+        <property name="maximum">
+         <number>60</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>20</number>
+     </property>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_cancel">
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="text">
+        <string>Anuluj</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_save">
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="text">
+        <string>Zapisz</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
