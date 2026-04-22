@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QLabel>
 #include "ChessEnums.h"
+#include "GameSettings.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -19,10 +20,17 @@ signals:
     void requestPlayPlayer();
     void requestPlayComputer();
 
+    void requestSettingsOpen(bool isMidGame);
+    void settingsSaved(GameSettings newSettings);
+
 private slots:
     void on_closeButton_clicked();
+
     void on_btn_playPlayer_clicked();
     void on_btn_playComputer_clicked();
+
+    void on_btn_settings_clicked();
+    void on_btn_gameSettings_clicked();
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
@@ -31,6 +39,9 @@ public:
     void setSquare(int row, int col, PieceColor color, PieceType type);
     void clearHistoryUI();
     void drawCoordinates(PieceColor perspective);
+
+    void openSettingsDialog(const GameSettings& currentSettings, bool isMidGame);
+    void applySettingsToUI(const GameSettings& settings);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;

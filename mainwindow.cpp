@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "SettingsDialog.h"
 #include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -168,4 +169,41 @@ void MainWindow::setSquare(int row, int col, PieceColor color, PieceType type)
 void MainWindow::clearHistoryUI()
 {
     ui->listWidget_History->clear();
+}
+
+void MainWindow::on_btn_settings_clicked() {
+    emit requestSettingsOpen(false); // False = Not mid-game
+}
+
+void MainWindow::on_btn_gameSettings_clicked() {
+    emit requestSettingsOpen(true);  // True = Mid-game! Lock the timers!
+}
+
+// --- The Controller Commands ---
+void MainWindow::openSettingsDialog(const GameSettings& currentSettings, bool isMidGame)
+{
+    // Create the dialog, passing in the locked state and current settings
+    SettingsDialog dialog(currentSettings, isMidGame, this);
+
+    // exec() freezes the main window until the dialog is closed
+    if (dialog.exec() == QDialog::Accepted) {
+        // If they clicked Save, send the updated struct to the Controller!
+        emit settingsSaved(dialog.getSettings());
+    }
+}
+
+void MainWindow::applySettingsToUI(const GameSettings& settings)
+{
+    // Update the player names on the board screen
+    ui->p1Name->setText(QString::fromStdString(settings.p1Name));
+    ui->p2Name->setText(QString::fromStdString(settings.p2Name));
+
+    // Format the timers (e.g., 300 seconds -> "05:00")
+    int p1Mins = settings.p1BaseTimeSeconds / 60;
+    int p1Secs = settings.p1BaseTimeSeconds % 60;
+    ui->p1Timer->setText(QString("%1:%2").arg(p1Mins, 2, 10, QChar('0')).arg(p1Secs, 2, 10, QChar('0')));
+
+    int p2Mins = settings.p2BaseTimeSeconds / 60;
+    int p2Secs = settings.p2BaseTimeSeconds % 60;
+    ui->p2Timer->setText(QString("%1:%2").arg(p2Mins, 2, 10, QChar('0')).arg(p2Secs, 2, 10, QChar('0')));
 }
