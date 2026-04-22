@@ -164,32 +164,52 @@ QPushButton#btn_cancel:hover { background-color: #e67373; }
      <property name="title">
       <string>Gracze</string>
      </property>
-     <layout class="QFormLayout" name="formLayout">
-      <property name="horizontalSpacing">
-       <number>20</number>
-      </property>
-      <property name="verticalSpacing">
-       <number>15</number>
-      </property>
+     <layout class="QGridLayout" name="gridLayout_Players">
+      <property name="horizontalSpacing"><number>15</number></property>
+      <property name="verticalSpacing"><number>15</number></property>
       <item row="0" column="0">
        <widget class="QLabel" name="label_p1Name">
-        <property name="text">
-         <string>Imię Gracza 1 (Białe):</string>
-        </property>
+        <property name="text"><string>Gracz 1 (Białe):</string></property>
        </widget>
       </item>
       <item row="0" column="1">
        <widget class="QLineEdit" name="edit_p1Name"/>
       </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="lbl_p1Avatar">
+        <property name="minimumSize"><size><width>34</width><height>34</height></size></property>
+        <property name="maximumSize"><size><width>34</width><height>34</height></size></property>
+        <property name="styleSheet"><string>border: 1px solid #555; background-color: #1a1a1a;</string></property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QPushButton" name="btn_p1Avatar">
+        <property name="cursor"><cursorShape>PointingHandCursor</cursorShape></property>
+        <property name="text"><string>Wybierz</string></property>
+        <property name="styleSheet"><string>min-width: 60px; padding: 6px; font-size: 14px;</string></property>
+       </widget>
+      </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_p2Name">
-        <property name="text">
-         <string>Imię Gracza 2 (Czarne):</string>
-        </property>
+        <property name="text"><string>Gracz 2 (Czarne):</string></property>
        </widget>
       </item>
       <item row="1" column="1">
        <widget class="QLineEdit" name="edit_p2Name"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="lbl_p2Avatar">
+        <property name="minimumSize"><size><width>34</width><height>34</height></size></property>
+        <property name="maximumSize"><size><width>34</width><height>34</height></size></property>
+        <property name="styleSheet"><string>border: 1px solid #555; background-color: #1a1a1a;</string></property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QPushButton" name="btn_p2Avatar">
+        <property name="cursor"><cursorShape>PointingHandCursor</cursorShape></property>
+        <property name="text"><string>Wybierz</string></property>
+        <property name="styleSheet"><string>min-width: 60px; padding: 6px; font-size: 14px;</string></property>
+       </widget>
       </item>
      </layout>
     </widget>

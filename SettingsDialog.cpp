@@ -1,5 +1,6 @@
 #include "settingsdialog.h"
 #include "ui_SettingsDialog.h"
+#include <QFileDialog>
 
 SettingsDialog::SettingsDialog(const GameSettings& currentSettings, bool isMidGame, QWidget *parent)
     : QDialog(parent), ui(new Ui::SettingsDialog), m_settings(currentSettings)
@@ -18,6 +19,9 @@ SettingsDialog::SettingsDialog(const GameSettings& currentSettings, bool isMidGa
 
     ui->edit_p1Name->setText(QString::fromStdString(m_settings.p1Name));
     ui->edit_p2Name->setText(QString::fromStdString(m_settings.p2Name));
+
+    ui->lbl_p1Avatar->setPixmap(QPixmap(QString::fromStdString(m_settings.p1AvatarPath)).scaled(34, 34, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
+    ui->lbl_p2Avatar->setPixmap(QPixmap(QString::fromStdString(m_settings.p2AvatarPath)).scaled(34, 34, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
 
     if (isMidGame) {
         ui->grp_timeSettings->setEnabled(false);
@@ -80,5 +84,23 @@ void SettingsDialog::on_spin_p1Inc_valueChanged(int arg1)
 {
     if (!ui->chk_handicap->isChecked()) {
         ui->spin_p2Inc->setValue(arg1);
+    }
+}
+
+void SettingsDialog::on_btn_p1Avatar_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Wybierz Avatar", "", "Images (*.png *.jpg *.jpeg)");
+    if (!fileName.isEmpty()) {
+        m_settings.p1AvatarPath = fileName.toStdString();
+        ui->lbl_p1Avatar->setPixmap(QPixmap(fileName).scaled(34, 34, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
+    }
+}
+
+void SettingsDialog::on_btn_p2Avatar_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Wybierz Avatar", "", "Images (*.png *.jpg *.jpeg)");
+    if (!fileName.isEmpty()) {
+        m_settings.p2AvatarPath = fileName.toStdString();
+        ui->lbl_p2Avatar->setPixmap(QPixmap(fileName).scaled(34, 34, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
     }
 }

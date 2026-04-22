@@ -25,6 +25,7 @@ public:
     Player& getPlayer(PieceColor color) {
         return (color == PieceColor::White) ? playerWhite : playerBlack;
     }
+    bool attemptMove(int fromRow, int fromCol, int toRow, int toCol);
 
 signals:
 

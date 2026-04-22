@@ -2,14 +2,20 @@
 #include "./ui_mainwindow.h"
 #include "SettingsDialog.h"
 #include <QTimer>
+#include <QMouseEvent>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Szachy");
     this->setWindowFlags(Qt::FramelessWindowHint);
+
+    m_floatingPiece = new QLabel(this);
+    m_floatingPiece->setAttribute(Qt::WA_TransparentForMouseEvents);
+    m_floatingPiece->hide();
+
+    qApp->installEventFilter(this);
 
     for (int row = 0; row < 8; ++row) {
         for (int col = 0; col < 8; ++col) {
@@ -56,6 +62,11 @@ MainWindow::MainWindow(QWidget *parent)
                 tile->setStyleSheet("background-color: #555555; border: none; border-radius: 0px; color: white;");
             }
 
+            connect(tile, &QPushButton::clicked, this, [this, row, col]() {
+                // This tiny invisible function remembers its exact row and col!
+                emit squareClicked(row, col);
+            });
+
             ui->gridLayout_Board->addWidget(tile, row, col);
         }
     }
@@ -69,6 +80,11 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::on_closeButton_clicked()
+{
+    this->close();
+}
+
+void MainWindow::on_btn_closeGame_clicked()
 {
     this->close();
 }
@@ -192,11 +208,41 @@ void MainWindow::openSettingsDialog(const GameSettings& currentSettings, bool is
     }
 }
 
+QPixmap makeSquareAvatar(const QString& imagePath, int size) {
+    QPixmap original(imagePath);
+    if (original.isNull()) return QPixmap(); // Return empty if not found
+
+    int shortest = std::min(original.width(), original.height());
+    int x = (original.width() - shortest) / 2;
+    int y = (original.height() - shortest) / 2;
+
+    // Crop to center square, then scale smoothly
+    QPixmap square = original.copy(x, y, shortest, shortest);
+    return square.scaled(size, size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+}
+
 void MainWindow::applySettingsToUI(const GameSettings& settings)
 {
-    // Update the player names on the board screen
-    ui->p1Name->setText(QString::fromStdString(settings.p1Name));
-    ui->p2Name->setText(QString::fromStdString(settings.p2Name));
+    ui->p1Name->setFixedWidth(150);
+    ui->p2Name->setFixedWidth(150);
+
+    QString p1Full = QString::fromStdString(settings.p1Name);
+    QString p2Full = QString::fromStdString(settings.p2Name);
+
+    QFontMetrics metrics1(ui->p1Name->font());
+    QString p1Elided = metrics1.elidedText(p1Full, Qt::ElideRight, 150);
+
+    QFontMetrics metrics2(ui->p2Name->font());
+    QString p2Elided = metrics2.elidedText(p2Full, Qt::ElideRight, 150);
+
+    ui->p1Name->setText(p1Elided);
+    ui->p1Name->setToolTip(p1Full);
+
+    ui->p2Name->setText(p2Elided);
+    ui->p2Name->setToolTip(p2Full);
+
+    ui->p1Icon->setPixmap(makeSquareAvatar(QString::fromStdString(settings.p1AvatarPath), 80));
+    ui->p2Icon->setPixmap(makeSquareAvatar(QString::fromStdString(settings.p2AvatarPath), 80));
 
     // Format the timers (e.g., 300 seconds -> "05:00")
     int p1Mins = settings.p1BaseTimeSeconds / 60;
@@ -206,4 +252,65 @@ void MainWindow::applySettingsToUI(const GameSettings& settings)
     int p2Mins = settings.p2BaseTimeSeconds / 60;
     int p2Secs = settings.p2BaseTimeSeconds % 60;
     ui->p2Timer->setText(QString("%1:%2").arg(p2Mins, 2, 10, QChar('0')).arg(p2Secs, 2, 10, QChar('0')));
+}
+
+QString getImagePath(PieceColor color, PieceType type) {
+    if (type == PieceType::Empty || color == PieceColor::None) return "";
+    QString path = ":/images/";
+    path += (color == PieceColor::White) ? "white_" : "black_";
+    switch (type) {
+    case PieceType::Pawn:   path += "pawn.png"; break;
+    case PieceType::Knight: path += "knight.png"; break;
+    case PieceType::Bishop: path += "bishop.png"; break;
+    case PieceType::Rook:   path += "rook.png"; break;
+    case PieceType::Queen:  path += "queen.png"; break;
+    case PieceType::King:   path += "king.png"; break;
+    default: return "";
+    }
+    return path;
+}
+
+void MainWindow::pickUpPiece(int row, int col, PieceColor color, PieceType type)
+{
+    // 1. Erase the icon from the actual button so it looks like we picked it up
+    setSquare(row, col, PieceColor::None, PieceType::Empty);
+
+    // 2. Set the floating label's image
+    QPixmap pixmap(getImagePath(color, type));
+
+    // Scale it to match your current tile size
+    int tileSize = ui->gridLayout_Board->itemAtPosition(0,0)->widget()->width();
+    m_floatingPiece->setPixmap(pixmap.scaled(tileSize, tileSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    m_floatingPiece->setFixedSize(tileSize, tileSize);
+
+    // 3. Move it to the mouse instantly and show it
+    QPoint mousePos = this->mapFromGlobal(QCursor::pos());
+    m_floatingPiece->move(mousePos.x() - (tileSize / 2), mousePos.y() - (tileSize / 2));
+    m_floatingPiece->show();
+    m_floatingPiece->raise(); // Ensure it's drawn on top of everything
+}
+
+void MainWindow::dropPiece()
+{
+    m_floatingPiece->hide();
+}
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    // If the mouse is moving AND our floating piece is visible...
+    if (event->type() == QEvent::MouseMove && !m_floatingPiece->isHidden()) {
+
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+
+        // Translate the coordinate to relative MainWindow space
+        QPoint globalPos = mouseEvent->globalPosition().toPoint();
+        QPoint localPos = this->mapFromGlobal(globalPos);
+
+        // Center the piece exactly on the cursor
+        int offset = m_floatingPiece->width() / 2;
+        m_floatingPiece->move(localPos.x() - offset, localPos.y() - offset);
+    }
+
+    // Let the standard event processing continue
+    return QMainWindow::eventFilter(obj, event);
 }
