@@ -22,6 +22,7 @@ signals:
 
     void requestSettingsOpen(bool isMidGame);
     void settingsSaved(GameSettings newSettings);
+    void squareClicked(int row, int col);
 
 private slots:
     void on_closeButton_clicked();
@@ -43,13 +44,18 @@ public:
     void openSettingsDialog(const GameSettings& currentSettings, bool isMidGame);
     void applySettingsToUI(const GameSettings& settings);
 
+    void pickUpPiece(int row, int col, PieceColor color, PieceType type);
+    void dropPiece();
+
 protected:
     void resizeEvent(QResizeEvent *event) override;
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     Ui::MainWindow *ui;
     void resizeBoard();
     QLabel* rankLabels[8]; // Numbers 1-8 (Rows)
     QLabel* fileLabels[8]; // Letters a-h (Columns)
+    QLabel* m_floatingPiece;
 };
 #endif // MAINWINDOW_H

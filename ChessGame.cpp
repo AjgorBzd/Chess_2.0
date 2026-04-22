@@ -21,3 +21,9 @@ PieceColor ChessGame::getPieceColorAt(int row, int col) const {
 void ChessGame::switchTurn() {
     currentTurn = (currentTurn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
 }
+
+bool ChessGame::attemptMove(int fromRow, int fromCol, int toRow, int toCol) {
+
+    board.movePiece(fromRow, fromCol, toRow, toCol);
+    return true;
+}

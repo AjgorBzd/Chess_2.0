@@ -19,9 +19,15 @@ public slots:
     void handleSettingsOpenRequest(bool isMidGame);
     void handleSettingsSaved(GameSettings newSettings);
 
+    void handleSquareClicked(int row, int col);
+
 private:
     ChessGame *m_model;
     MainWindow *m_view;
     void syncBoardToView();
     GameSettings currentSettings;
+
+    bool m_isPieceSelected = false;
+    int m_selectedRow = -1;
+    int m_selectedCol = -1;
 };

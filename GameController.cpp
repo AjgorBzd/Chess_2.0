@@ -9,6 +9,8 @@ GameController::GameController(ChessGame *model, MainWindow *view, QObject *pare
     connect(m_view, &MainWindow::requestSettingsOpen, this, &GameController::handleSettingsOpenRequest);
     connect(m_view, &MainWindow::settingsSaved, this, &GameController::handleSettingsSaved);
 
+    connect(m_view, &MainWindow::squareClicked, this, &GameController::handleSquareClicked);
+
     m_view->applySettingsToUI(currentSettings);
 }
 
@@ -52,4 +54,59 @@ void GameController::handleSettingsSaved(GameSettings newSettings) {
 
     // 3. Command the View to refresh the names and timers
     m_view->applySettingsToUI(currentSettings);
+}
+
+void GameController::handleSquareClicked(int row, int col)
+{
+    // qDebug() << "Controller registered click at Row:" << row << "Col:" << col;
+
+    // PieceColor clickedColor = m_model->getPieceColorAt(row, col);
+    // PieceType clickedType = m_model->getPieceTypeAt(row, col);
+
+    // switch(clickedType)
+    // {
+    //     case PieceType::Empty:
+    //         qDebug() << "You didn't click on a piece.";
+    //         break;
+    //     case PieceType::Pawn:
+    //         qDebug() << "You clicked on a pawn.";
+    //         break;
+    //     case PieceType::Bishop:
+    //         qDebug() << "You clicked on a bishop.";
+    //         break;
+    //     case PieceType::Knight:
+    //         qDebug() << "You clicked on a knight.";
+    //         break;
+    //     case PieceType::Rook:
+    //         qDebug() << "You clicked on a rook.";
+    //         break;
+    //     case PieceType::Queen:
+    //         qDebug() << "You clicked on a queen.";
+    //         break;
+    //     case PieceType::King:
+    //         qDebug() << "You clicked on a king.";
+    //         break;
+    // }
+
+    if (!m_isPieceSelected) {
+        PieceType type = m_model->getPieceTypeAt(row, col);
+        PieceColor color = m_model->getPieceColorAt(row, col);
+
+        if (type != PieceType::Empty) {
+            m_isPieceSelected = true;
+            m_selectedRow = row;
+            m_selectedCol = col;
+
+            m_view->pickUpPiece(row, col, color, type);
+        }
+    } else {
+        m_model->attemptMove(m_selectedRow, m_selectedCol, row, col);
+
+        m_isPieceSelected = false;
+        m_selectedRow = -1;
+        m_selectedCol = -1;
+
+        m_view->dropPiece();
+        syncBoardToView();
+    }
 }
