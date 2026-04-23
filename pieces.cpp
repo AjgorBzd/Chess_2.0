@@ -163,7 +163,6 @@ std::vector<Position> Pawn::getBasicLegalMoves(int myRow, int myCol, const Chess
     for (int col : captureCols) {
         if (forwardRow >= 0 && forwardRow < 8 && col >= 0 && col < 8) {
             PieceColor targetColor = board.getPieceAt(forwardRow, col)->getColor();
-            // Must be an enemy piece to capture (cannot be empty or friendly)
             if (targetColor != PieceColor::None && targetColor != this->color) {
                 moves.push_back({forwardRow, col});
             }

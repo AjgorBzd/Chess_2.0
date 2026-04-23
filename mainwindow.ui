@@ -69,14 +69,12 @@ QPushButton#btn_save:hover { background-color: #8bb5ff; }
 QPushButton#btn_draw:hover { background-color: #e5c472; }
 QPushButton#btn_resign:hover { background-color: #e67373; }
 
-/* Player Names */
 QLabel#p1Name, QLabel#p2Name {
     color: #ffffff;
     font-size: 20px;
     font-weight: bold;
 }
 
-/* Base Timer Styles Height Fix */
 QLabel#p1Timer, QLabel#p2Timer {
     border-width: 2px;
     border-style: solid;
@@ -88,10 +86,8 @@ QLabel#p1Timer, QLabel#p2Timer {
     max-height: 45px;
 }
 
-/* Player 1 Timer */
 QLabel#p1Timer { background-color: #ffffff; color: #000000; }
 
-/* Player 2 Timer */
 QLabel#p2Timer { background-color: #1a1a1a; color: #ffffff; }
 
 QListWidget#listWidget_History {

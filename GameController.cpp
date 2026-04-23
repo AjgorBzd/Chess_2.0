@@ -46,14 +46,12 @@ void GameController::handlePlayPlayerRequest()
     m_model->startNewGame(currentSettings);
 
 
-    // 2. Command the View to change the screen and wipe the history box
     m_view->showGamePage();
     m_view->drawCoordinates(m_model->getCurrentTurn());
     int p1Time = m_model->getPlayer(PieceColor::White).getTimeLeft();
     int p2Time = m_model->getPlayer(PieceColor::Black).getTimeLeft();
     m_view->RestartUI(p1Time, p2Time);
 
-    // 3. Push the new board state to the View
     syncBoardToView();
 }
 
@@ -69,7 +67,6 @@ void GameController::syncBoardToView()
 }
 
 void GameController::handleSettingsOpenRequest(bool isMidGame) {
-    // Controller commands the View to open the dialog and feeds it the current data
     m_view->openSettingsDialog(currentSettings, isMidGame);
 }
 
@@ -195,13 +192,11 @@ void GameController::handleSquareClicked(int row, int col)
         Player& w = m_model->getPlayer(PieceColor::White);
         Player& b = m_model->getPlayer(PieceColor::Black);
 
-        // Calculate Advantage
         int wAdv = std::max(0, w.getMaterialScore() - b.getMaterialScore());
         int bAdv = std::max(0, b.getMaterialScore() - w.getMaterialScore());
 
         m_view->updateCaptures(w.getCapturedPieces(), b.getCapturedPieces(), wAdv, bAdv);
 
-        // Highlights
         CheckInfo checkInfo = m_model->getCurrentCheckInfo();
         if (checkInfo.inCheck) {
             m_view->highlightCheck(checkInfo);

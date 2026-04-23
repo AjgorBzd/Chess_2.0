@@ -8,9 +8,7 @@ SettingsDialog::SettingsDialog(const GameSettings& currentSettings, bool isMidGa
     ui->setupUi(this);
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
 
-    // 1. Populate the UI with the existing settings
     ui->chk_autoFlip->setChecked(m_settings.autoFlipBoard);
-
     ui->chk_handicap->setChecked(m_settings.handicapMode);
     ui->spin_p1Time->setValue(m_settings.p1BaseTimeSeconds / 60);
     ui->spin_p1Inc->setValue(m_settings.p1IncrementSeconds);
@@ -74,7 +72,6 @@ GameSettings SettingsDialog::getSettings() const {
 
 void SettingsDialog::on_spin_p1Time_valueChanged(int arg1)
 {
-    // If handicap is OFF, mirror the value to Player 2
     if (!ui->chk_handicap->isChecked()) {
         ui->spin_p2Time->setValue(arg1);
     }

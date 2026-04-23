@@ -125,7 +125,6 @@ bool ChessGame::canPickUp(int row, int col) const {
     PieceType type = getPieceTypeAt(row, col);
     PieceColor color = getPieceColorAt(row, col);
 
-    // You can only pick it up if it's not empty, AND it belongs to the current player
     return (type != PieceType::Empty && color == currentTurn);
 }
 
