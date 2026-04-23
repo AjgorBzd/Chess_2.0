@@ -9,6 +9,7 @@ void ChessGame::startNewGame(const GameSettings& settings) {
     currentTurn = PieceColor::White;
     moveHistory.clear();
     gameStarted = false;
+    currentState = GameState::Active;
 
     playerWhite.clearCapturedPieces();
     playerBlack.clearCapturedPieces();
@@ -99,6 +100,20 @@ bool ChessGame::attemptMove(int fromRow, int fromCol, int toRow, int toCol, Piec
 
     moveHistory.push_back(record);
     currentTurn = enemyColor;
+
+    if (!MoveValidator::hasAnyLegalMoves(currentTurn, board, moveHistory)) {
+        CheckInfo check = MoveValidator::getCheckInfo(currentTurn, board);
+        if (check.inCheck) {
+            currentState = (currentTurn == PieceColor::White) ? GameState::BlackWins : GameState::WhiteWins;
+
+            moveHistory.back().isCheckmate = true;
+            moveHistory.back().isCheck = false;
+        } else {
+            currentState = GameState::Draw;
+        }
+    } else if (MoveValidator::isInsufficientMaterial(board)) {
+        currentState = GameState::Draw;
+    }
 
     return true;
 }

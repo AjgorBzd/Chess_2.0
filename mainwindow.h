@@ -64,6 +64,7 @@ public:
     void setFlipped(bool flipped);
 
     PieceType showPromotionDialog(PieceColor color, int logicalRow, int logicalCol);
+    void showGameOverDialog(GameState state, const GameSettings& settings);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;

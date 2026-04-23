@@ -59,3 +59,10 @@ struct MoveRecord {
     int p2Time;
 };
 
+enum class GameState {
+    Active,
+    WhiteWins,
+    BlackWins,
+    Draw
+};
+

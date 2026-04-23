@@ -15,6 +15,7 @@ class ChessGame : public QObject
 private:
     ChessBoard board;
     PieceColor currentTurn;
+    GameState currentState = GameState::Active;
 
     Player playerWhite{PieceColor::White, "Gracz 1", ":/images/default_avatar_white.png", 300};
     Player playerBlack{PieceColor::Black, "Gracz 2", ":/images/default_avatar_black.png", 300};
@@ -47,6 +48,9 @@ public:
     void applySettings(const GameSettings& settings);
 
     bool undoLastMove();
+
+    GameState getGameState() const { return currentState; }
+    void setGameState(GameState state) { currentState = state; }
 
 signals:
 

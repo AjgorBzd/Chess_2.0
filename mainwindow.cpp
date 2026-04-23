@@ -6,6 +6,7 @@
 #include <QString>
 #include <QDialog>
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QPushButton>
 
 namespace TileStyles {
@@ -420,7 +421,9 @@ void MainWindow::updateHistory(const std::vector<MoveRecord>& history) {
         else if (m.isPromotionToBishop) res += "=B";
         else if (m.isPromotionToKnight) res += "=N";
 
-        if (m.isCheck) {
+        if (m.isCheckmate) {
+            res += "#";
+        } else if (m.isCheck) {
             res += "+";
         }
 
@@ -579,4 +582,97 @@ PieceType MainWindow::showPromotionDialog(PieceColor color, int logicalRow, int 
 
     dialog.exec();
     return selectedPiece;
+}
+
+void MainWindow::showGameOverDialog(GameState state, const GameSettings& settings) {
+    QDialog dialog(this);
+    dialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
+    dialog.setStyleSheet("QDialog { background-color: #2b2b2b; border: 2px solid #555555; border-radius: 8px; } "
+                         "QLabel { color: white; font-family: 'Segoe UI'; }");
+
+    QVBoxLayout* mainLayout = new QVBoxLayout(&dialog);
+    mainLayout->setContentsMargins(30, 30, 30, 30);
+    mainLayout->setSpacing(20);
+
+    QLabel* titleLbl = new QLabel(&dialog);
+    titleLbl->setAlignment(Qt::AlignCenter);
+    titleLbl->setStyleSheet("font-size: 28px; font-weight: bold; color: #e0c08b;");
+
+    QLabel* scoreLbl = new QLabel(&dialog);
+    scoreLbl->setAlignment(Qt::AlignCenter);
+    scoreLbl->setStyleSheet("font-size: 42px; font-weight: bold;");
+
+    QString p1Name = QString::fromStdString(settings.p1Name);
+    QString p2Name = QString::fromStdString(settings.p2Name);
+
+    if (state == GameState::WhiteWins) {
+        titleLbl->setText("Szach Mat! Wygrywa " + p1Name);
+        scoreLbl->setText("1 - 0");
+    } else if (state == GameState::BlackWins) {
+        titleLbl->setText("Szach Mat! Wygrywa " + p2Name);
+        scoreLbl->setText("0 - 1");
+    } else {
+        titleLbl->setText("Koniec Gry");
+        scoreLbl->setText("½ - ½");
+    }
+    mainLayout->addWidget(titleLbl);
+    mainLayout->addWidget(scoreLbl);
+
+    QHBoxLayout* playersLayout = new QHBoxLayout();
+
+    auto createPlayerWidget = [&](const QString& name, const QString& avatarPath) {
+        QVBoxLayout* pLayout = new QVBoxLayout();
+        QLabel* avLbl = new QLabel(&dialog);
+        avLbl->setFixedSize(80, 80);
+        avLbl->setPixmap(makeSquareAvatar(avatarPath, 80));
+        avLbl->setAlignment(Qt::AlignCenter);
+
+        QLabel* nameLbl = new QLabel(name, &dialog);
+        nameLbl->setAlignment(Qt::AlignCenter);
+        nameLbl->setStyleSheet("font-size: 18px; font-weight: bold;");
+
+        pLayout->addWidget(avLbl);
+        pLayout->addWidget(nameLbl);
+        pLayout->setAlignment(Qt::AlignCenter);
+        return pLayout;
+    };
+
+    playersLayout->addLayout(createPlayerWidget(p1Name, QString::fromStdString(settings.p1AvatarPath)));
+
+    QLabel* vsLbl = new QLabel("VS", &dialog);
+    vsLbl->setAlignment(Qt::AlignCenter);
+    vsLbl->setStyleSheet("font-size: 24px; font-weight: bold; color: #777777; margin: 0px 15px;");
+    playersLayout->addWidget(vsLbl);
+
+    playersLayout->addLayout(createPlayerWidget(p2Name, QString::fromStdString(settings.p2AvatarPath)));
+
+    mainLayout->addLayout(playersLayout);
+
+    QHBoxLayout* btnLayout = new QHBoxLayout();
+    btnLayout->setSpacing(15);
+    btnLayout->setContentsMargins(0, 20, 0, 0);
+
+    QPushButton* btnMenu = new QPushButton("Wróć do menu", &dialog);
+    QPushButton* btnRematch = new QPushButton("Zagraj ponownie", &dialog);
+
+    QString btnStyle = "QPushButton { background-color: #404040; border: none; border-radius: 5px; padding: 12px 20px; font-size: 16px; font-weight: bold; color: white;} "
+                       "QPushButton:hover { background-color: #55559c; }";
+    btnRematch->setStyleSheet(btnStyle);
+    btnMenu->setStyleSheet(btnStyle);
+
+    connect(btnRematch, &QPushButton::clicked, this, [&]() {
+        dialog.accept();
+        emit requestPlayPlayer();
+    });
+
+    connect(btnMenu, &QPushButton::clicked, this, [&]() {
+        dialog.reject();
+        on_btn_closeGame_clicked();
+    });
+
+    btnLayout->addWidget(btnMenu);
+    btnLayout->addWidget(btnRematch);
+    mainLayout->addLayout(btnLayout);
+
+    dialog.exec();
 }

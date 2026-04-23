@@ -171,3 +171,32 @@ bool MoveValidator::hasAnyLegalMoves(PieceColor color, ChessBoard& board, const 
     }
     return false;
 }
+
+bool MoveValidator::isInsufficientMaterial(const ChessBoard& board) {
+    int whiteMinors = 0, blackMinors = 0;
+
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            auto p = board.getPieceAt(r, c);
+            PieceType type = p->getType();
+
+            if (type == PieceType::Empty || type == PieceType::King) continue;
+
+            if (type == PieceType::Pawn || type == PieceType::Rook || type == PieceType::Queen) {
+                return false;
+            }
+
+            if (p->getColor() == PieceColor::White) {
+                whiteMinors++;
+            } else if (p->getColor() == PieceColor::Black) {
+                blackMinors++;
+            }
+        }
+    }
+
+    if (whiteMinors == 0 && blackMinors == 0) return true;
+    if (whiteMinors == 1 && blackMinors == 0) return true;
+    if (whiteMinors == 0 && blackMinors == 1) return true;
+
+    return false;
+}

@@ -18,11 +18,24 @@ GameController::GameController(ChessGame *model, MainWindow *view, QObject *pare
 }
 
 void GameController::onTimerTick() {
+    if (m_model->getGameState() != GameState::Active) return;
     m_model->decrementCurrentTimer();
 
     int p1Time = m_model->getPlayer(PieceColor::White).getTimeLeft();
     int p2Time = m_model->getPlayer(PieceColor::Black).getTimeLeft();
     m_view->updateTimers(p1Time, p2Time);
+
+    if (p1Time <= 0) {
+        m_matchTimer->stop();
+        m_model->setGameState(GameState::BlackWins);
+        m_model->setGameStarted(false);
+        m_view->showGameOverDialog(GameState::BlackWins, currentSettings);
+    } else if (p2Time <= 0) {
+        m_matchTimer->stop();
+        m_model->setGameState(GameState::WhiteWins);
+        m_model->setGameStarted(false);
+        m_view->showGameOverDialog(GameState::WhiteWins, currentSettings);
+    }
 }
 
 void GameController::handlePlayPlayerRequest()
@@ -112,6 +125,8 @@ void GameController::handleSquareClicked(int row, int col)
     //         break;
     // }
 
+    if (m_model->getGameState() != GameState::Active) return;
+
     if (!m_isPieceSelected) {
         if (m_model->canPickUp(row, col)) {
             m_isPieceSelected = true;
@@ -190,6 +205,16 @@ void GameController::handleSquareClicked(int row, int col)
         CheckInfo checkInfo = m_model->getCurrentCheckInfo();
         if (checkInfo.inCheck) {
             m_view->highlightCheck(checkInfo);
+        }
+
+        GameState state = m_model->getGameState();
+        if (state != GameState::Active) {
+            m_matchTimer->stop();
+            m_model->setGameStarted(false);
+
+            syncBoardToView();
+
+            m_view->showGameOverDialog(state, currentSettings);
         }
     }
 }
