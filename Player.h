@@ -10,6 +10,7 @@ private:
     std::string avatarPath;
     std::vector<PieceType> capturedPieces;
     int timeLeft;
+    int increment = 0;
 
 public:
     Player(PieceColor c, const std::string& defaultName, const std::string& defaultAvatar, int time)
@@ -45,4 +46,7 @@ public:
     void popCapturedPiece() {
         if (!capturedPieces.empty()) capturedPieces.pop_back();
     }
+
+    void setIncrement(int seconds) { increment = seconds; }
+    void applyIncrement() { timeLeft += increment; }
 };

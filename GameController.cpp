@@ -216,6 +216,9 @@ void GameController::handleSquareClicked(int row, int col)
 
             m_view->showGameOverDialog(state, currentSettings);
         }
+
+        m_view->updateTimers(m_model->getPlayer(PieceColor::White).getTimeLeft(),
+                             m_model->getPlayer(PieceColor::Black).getTimeLeft());
     }
 }
 
