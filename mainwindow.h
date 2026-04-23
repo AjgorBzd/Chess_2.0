@@ -23,6 +23,7 @@ signals:
     void requestSettingsOpen(bool isMidGame);
     void settingsSaved(GameSettings newSettings);
     void squareClicked(int row, int col);
+    void requestUndoMove();
 
 private slots:
     void on_closeButton_clicked();
@@ -32,6 +33,8 @@ private slots:
     void on_btn_playComputer_clicked();
 
     void on_btn_settings_clicked();
+
+    void on_btn_undo_clicked();
     void on_btn_gameSettings_clicked();
 
 public:
@@ -57,6 +60,7 @@ public:
     void updateHistory(const std::vector<MoveRecord>& history);
     void updateTimers(int p1Seconds, int p2Seconds);
     void updateCaptures(const std::vector<PieceType>& whiteCaps, const std::vector<PieceType>& blackCaps, int p1Adv, int p2Adv);
+    void RestartUI(int p1Time, int p2Time);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;

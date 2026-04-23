@@ -41,4 +41,8 @@ public:
         }
         return score;
     }
+
+    void popCapturedPiece() {
+        if (!capturedPieces.empty()) capturedPieces.pop_back();
+    }
 };

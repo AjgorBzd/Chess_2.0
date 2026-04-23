@@ -24,6 +24,8 @@ public slots:
     void handleSquareClicked(int row, int col);
     void onTimerTick();
 
+    void handleUndoMoveRequest();
+
 private:
     ChessGame *m_model;
     MainWindow *m_view;

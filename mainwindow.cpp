@@ -109,8 +109,9 @@ void MainWindow::on_btn_playPlayer_clicked()
 {
     ui->pageManager->setCurrentIndex(1);
     resizeBoard();
+    clearHighlights();
     emit requestPlayPlayer();
-    this->updateCaptures()
+
 }
 
 void MainWindow::on_btn_playComputer_clicked()
@@ -482,4 +483,19 @@ void MainWindow::updateCaptures(const std::vector<PieceType>& whiteCaps, const s
 
     ui->p1Captured->setText(buildHtml(whiteCaps, "black", p1Adv));
     ui->p2Captured->setText(buildHtml(blackCaps, "white", p2Adv));
+}
+
+void MainWindow::RestartUI(int p1Time, int p2Time) {
+    clearHistoryUI();
+
+    ui->p1Captured->clear();
+    ui->p2Captured->clear();
+
+    clearHighlights();
+    updateTimers(p1Time, p2Time);
+    setFlipped(false);
+}
+
+void MainWindow::on_btn_undo_clicked() {
+    emit requestUndoMove();
 }

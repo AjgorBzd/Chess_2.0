@@ -46,6 +46,8 @@ public:
 
     void applySettings(const GameSettings& settings);
 
+    bool undoLastMove();
+
 signals:
 
 public slots:

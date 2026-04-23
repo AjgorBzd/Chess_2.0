@@ -43,7 +43,7 @@ struct MoveRecord {
     PieceColor playerColor;
     PieceType pieceCaptured;
 
-    // We can easily expand this later!
+    bool isFirstMove = false;
     bool isCheck = false;
     bool isCheckmate = false;
     bool isShortCastling = false;

@@ -12,6 +12,7 @@ GameController::GameController(ChessGame *model, MainWindow *view, QObject *pare
     connect(m_view, &MainWindow::squareClicked, this, &GameController::handleSquareClicked);
     m_matchTimer = new QTimer(this);
     connect(m_matchTimer, &QTimer::timeout, this, &GameController::onTimerTick);
+    connect(m_view, &MainWindow::requestUndoMove, this, &GameController::handleUndoMoveRequest);
 
     m_view->applySettingsToUI(currentSettings);
 }
@@ -26,14 +27,18 @@ void GameController::onTimerTick() {
 
 void GameController::handlePlayPlayerRequest()
 {
-    // 1. Tell the Model to start a fresh game
+    if (m_matchTimer->isActive()) {
+        m_matchTimer->stop();
+    }
     m_model->startNewGame(currentSettings);
 
 
     // 2. Command the View to change the screen and wipe the history box
     m_view->showGamePage();
     m_view->drawCoordinates(m_model->getCurrentTurn());
-    m_view->clearHistoryUI();
+    int p1Time = m_model->getPlayer(PieceColor::White).getTimeLeft();
+    int p2Time = m_model->getPlayer(PieceColor::Black).getTimeLeft();
+    m_view->RestartUI(p1Time, p2Time);
 
     // 3. Push the new board state to the View
     syncBoardToView();
@@ -151,6 +156,41 @@ void GameController::handleSquareClicked(int row, int col)
         CheckInfo checkInfo = m_model->getCurrentCheckInfo();
         if (checkInfo.inCheck) {
             m_view->highlightCheck(checkInfo);
+        }
+    }
+}
+
+void GameController::handleUndoMoveRequest() {
+    if (m_model->undoLastMove()) {
+
+        m_isPieceSelected = false;
+        m_selectedRow = -1;
+        m_selectedCol = -1;
+        m_view->clearHighlights();
+
+        syncBoardToView();
+
+        m_view->updateHistory(m_model->getHistory());
+
+        Player& w = m_model->getPlayer(PieceColor::White);
+        Player& b = m_model->getPlayer(PieceColor::Black);
+        int wAdv = std::max(0, w.getMaterialScore() - b.getMaterialScore());
+        int bAdv = std::max(0, b.getMaterialScore() - w.getMaterialScore());
+        m_view->updateCaptures(w.getCapturedPieces(), b.getCapturedPieces(), wAdv, bAdv);
+
+        if (currentSettings.autoFlipBoard && m_model->getCurrentTurn() == PieceColor::Black) {
+            m_view->setFlipped(true);
+        } else {
+            m_view->setFlipped(false);
+        }
+        m_view->drawCoordinates(m_model->getCurrentTurn());
+        CheckInfo checkInfo = m_model->getCurrentCheckInfo();
+        if (checkInfo.inCheck) {
+            m_view->highlightCheck(checkInfo);
+        }
+        if (m_model->getHistory().empty()) {
+            m_matchTimer->stop();
+            m_model->setGameStarted(false);
         }
     }
 }

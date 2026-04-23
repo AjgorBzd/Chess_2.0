@@ -52,6 +52,7 @@ bool ChessGame::attemptMove(int fromRow, int fromCol, int toRow, int toCol) {
     record.pieceMoved = movingPiece;
     record.playerColor = currentTurn;
     record.pieceCaptured = captured;
+    record.isFirstMove = !board.getPieceAt(fromRow, fromCol)->hasMoved();
 
     board.movePiece(fromRow, fromCol, toRow, toCol);
 
@@ -90,5 +91,38 @@ void ChessGame::applySettings(const GameSettings& settings) {
 
     playerBlack.setName(settings.p2Name);
     playerBlack.setTimeLeft(settings.p2BaseTimeSeconds);
+}
+
+bool ChessGame::undoLastMove() {
+    if (moveHistory.empty()) return false;
+
+    MoveRecord lastMove = moveHistory.back();
+    moveHistory.pop_back();
+
+    board.setPieceAt(lastMove.fromRow, lastMove.fromCol, board.getPieceAt(lastMove.toRow, lastMove.toCol));
+
+    if (lastMove.isFirstMove) {
+        board.getPieceAt(lastMove.fromRow, lastMove.fromCol)->setMoved(false);
+    }
+
+    PieceColor enemyColor = (lastMove.playerColor == PieceColor::White) ? PieceColor::Black : PieceColor::White;
+    std::shared_ptr<Piece> restoredPiece = std::make_shared<EmptyPiece>();
+
+    if (lastMove.pieceCaptured != PieceType::Empty) {
+        switch (lastMove.pieceCaptured) {
+        case PieceType::Pawn: restoredPiece = std::make_shared<Pawn>(enemyColor); break;
+        case PieceType::Knight: restoredPiece = std::make_shared<Knight>(enemyColor); break;
+        case PieceType::Bishop: restoredPiece = std::make_shared<Bishop>(enemyColor); break;
+        case PieceType::Rook: restoredPiece = std::make_shared<Rook>(enemyColor); restoredPiece->setMoved(true); break;
+        case PieceType::Queen: restoredPiece = std::make_shared<Queen>(enemyColor); break;
+        default: break;
+        }
+        getPlayer(lastMove.playerColor).popCapturedPiece();
+    }
+    board.setPieceAt(lastMove.toRow, lastMove.toCol, restoredPiece);
+
+    currentTurn = lastMove.playerColor;
+
+    return true;
 }
 
