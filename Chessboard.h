@@ -15,4 +15,7 @@ public:
     std::shared_ptr<Piece> getPieceAt(int row, int col) const;
 
     void movePiece(int fromRow, int fromCol, int toRow, int toCol);
+    void setPieceAt(int row, int col, std::shared_ptr<Piece> piece) {
+        board[row][col] = piece;
+    }
 };
