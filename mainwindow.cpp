@@ -51,12 +51,10 @@ MainWindow::MainWindow(QWidget *parent)
             bool isLightSquare = (row + col) % 2 == 0;
 
             QGridLayout *btnLayout = new QGridLayout(tile);
-            btnLayout->setContentsMargins(6, 6, 6, 6); // Padding from the edge
+            btnLayout->setContentsMargins(6, 6, 6, 6);
 
-            // Column 0 gets the Numbers (Ranks)
             if (col == 0) {
                 rankLabels[row] = new QLabel(tile);
-                // Dark squares get light text, light squares get dark text
                 rankLabels[row]->setStyleSheet(isLightSquare ? "color: #555555; background: transparent;" : "color: #e0c08b; background: transparent;");
 
                 QFont coordFont("Arial", 16, QFont::Bold);
@@ -65,7 +63,6 @@ MainWindow::MainWindow(QWidget *parent)
                 btnLayout->addWidget(rankLabels[row], 0, 0, Qt::AlignTop | Qt::AlignLeft);
             }
 
-            // Row 7 gets the Letters (Files)
             if (row == 7) {
                 fileLabels[col] = new QLabel(tile);
                 fileLabels[col]->setStyleSheet(isLightSquare ? "color: #555555; background: transparent;" : "color: #e0c08b; background: transparent;");
@@ -73,14 +70,13 @@ MainWindow::MainWindow(QWidget *parent)
                 QFont coordFont("Arial", 16, QFont::Bold);
                 fileLabels[col]->setFont(coordFont);
 
-                // Put it in the bottom-right corner
                 btnLayout->addWidget(fileLabels[col], 1, 1, Qt::AlignBottom | Qt::AlignRight);
             }
 
             tile->setStyleSheet(isLightSquare ? TileStyles::WhiteNormal : TileStyles::BlackNormal);
 
             connect(tile, &QPushButton::clicked, this, [this, row, col]() {
-                emit squareClicked(row, col);
+                emit squareClicked(mapFlippedCoord(row), mapFlippedCoord(col));
             });
 
             ui->gridLayout_Board->addWidget(tile, row, col);
@@ -174,7 +170,6 @@ void MainWindow::showGamePage()
 
 void MainWindow::setSquare(int row, int col, PieceColor color, PieceType type)
 {
-    // A quick helper to get the right string path
     QString path = "";
     if (type != PieceType::Empty && color != PieceColor::None) {
         path = ":/images/";
@@ -190,8 +185,8 @@ void MainWindow::setSquare(int row, int col, PieceColor color, PieceType type)
         }
     }
 
-    // Find the button and set the icon
-    QLayoutItem* item = ui->gridLayout_Board->itemAtPosition(row, col);
+    // Map logical to visual layout position
+    QLayoutItem* item = ui->gridLayout_Board->itemAtPosition(mapFlippedCoord(row), mapFlippedCoord(col));
     if (item && item->widget()) {
         QPushButton* tile = qobject_cast<QPushButton*>(item->widget());
         if (tile) {
@@ -335,7 +330,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 
 void MainWindow::highlightMoves(const std::vector<LegalMove>& moves) {
     for (const auto& move : moves) {
-        QLayoutItem* item = ui->gridLayout_Board->itemAtPosition(move.row, move.col);
+        QLayoutItem* item = ui->gridLayout_Board->itemAtPosition(mapFlippedCoord(move.row), mapFlippedCoord(move.col));
         if (item && item->widget()) {
             QPushButton* tile = qobject_cast<QPushButton*>(item->widget());
             if (tile) {
@@ -353,7 +348,7 @@ void MainWindow::highlightMoves(const std::vector<LegalMove>& moves) {
 void MainWindow::clearHighlights() {
     for (int r = 0; r < 8; ++r) {
         for (int c = 0; c < 8; ++c) {
-            QLayoutItem* item = ui->gridLayout_Board->itemAtPosition(r, c);
+            QLayoutItem* item = ui->gridLayout_Board->itemAtPosition(mapFlippedCoord(r), mapFlippedCoord(c));
             if (item && item->widget()) {
                 QPushButton* tile = qobject_cast<QPushButton*>(item->widget());
                 if (tile) {
@@ -368,7 +363,8 @@ void MainWindow::highlightCheck(const CheckInfo& info) {
     if (!info.inCheck) return;
 
     auto paintRed = [&](int r, int c) {
-        QLayoutItem* item = ui->gridLayout_Board->itemAtPosition(r, c);
+        // Map logical to visual layout position
+        QLayoutItem* item = ui->gridLayout_Board->itemAtPosition(mapFlippedCoord(r), mapFlippedCoord(c));
         if (item && item->widget()) {
             QPushButton* tile = qobject_cast<QPushButton*>(item->widget());
             if (tile) {
@@ -498,4 +494,11 @@ void MainWindow::RestartUI(int p1Time, int p2Time) {
 
 void MainWindow::on_btn_undo_clicked() {
     emit requestUndoMove();
+}
+
+void MainWindow::setFlipped(bool flipped) {
+    if (m_isFlipped != flipped) {
+        m_isFlipped = flipped;
+        drawCoordinates(m_isFlipped ? PieceColor::Black : PieceColor::White);
+    }
 }

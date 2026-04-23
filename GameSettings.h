@@ -2,12 +2,12 @@
 #include <string>
 
 struct GameSettings {
-    bool autoFlipBoard = false;
+    bool autoFlipBoard = true;
 
-    int p1BaseTimeSeconds = 300;
+    int p1BaseTimeSeconds = 600;
     int p1IncrementSeconds = 0;
 
-    int p2BaseTimeSeconds = 300;
+    int p2BaseTimeSeconds = 600;
     int p2IncrementSeconds = 0;
 
     bool handicapMode = false;

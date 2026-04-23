@@ -61,14 +61,23 @@ void GameController::handleSettingsOpenRequest(bool isMidGame) {
 }
 
 void GameController::handleSettingsSaved(GameSettings newSettings) {
-    // 1. Save the new truth
     currentSettings = newSettings;
-
-    // 2. Update the Models (we'll expand this later to actually update the Player objects in ChessGame)
-    // m_model->getPlayer(PieceColor::White).setName(m_settings.p1Name);
-
-    // 3. Command the View to refresh the names and timers
     m_view->applySettingsToUI(currentSettings);
+
+    bool shouldBeFlipped = (currentSettings.autoFlipBoard && m_model->getCurrentTurn() == PieceColor::Black);
+    m_view->setFlipped(shouldBeFlipped);
+
+    m_isPieceSelected = false;
+    m_selectedRow = -1;
+    m_selectedCol = -1;
+    m_view->clearHighlights();
+
+    syncBoardToView();
+
+    CheckInfo checkInfo = m_model->getCurrentCheckInfo();
+    if (checkInfo.inCheck) {
+        m_view->highlightCheck(checkInfo);
+    }
 }
 
 void GameController::handleSquareClicked(int row, int col)

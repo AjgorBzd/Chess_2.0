@@ -55,12 +55,13 @@ public:
     void clearHighlights();
     void highlightCheck(const CheckInfo& info);
 
-    void setFlipped(bool flipped) { m_isFlipped = flipped; }
-
     void updateHistory(const std::vector<MoveRecord>& history);
     void updateTimers(int p1Seconds, int p2Seconds);
     void updateCaptures(const std::vector<PieceType>& whiteCaps, const std::vector<PieceType>& blackCaps, int p1Adv, int p2Adv);
     void RestartUI(int p1Time, int p2Time);
+
+    int mapFlippedCoord(int coord) const { return m_isFlipped ? 7 - coord : coord; }
+    void setFlipped(bool flipped);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
