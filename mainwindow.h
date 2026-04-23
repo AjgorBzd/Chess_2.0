@@ -48,6 +48,16 @@ public:
     void pickUpPiece(int row, int col, PieceColor color, PieceType type);
     void dropPiece();
 
+    void highlightMoves(const std::vector<LegalMove>& moves);
+    void clearHighlights();
+    void highlightCheck(const CheckInfo& info);
+
+    void setFlipped(bool flipped) { m_isFlipped = flipped; }
+
+    void updateHistory(const std::vector<MoveRecord>& history);
+    void updateTimers(int p1Seconds, int p2Seconds);
+    void updateCaptures(const std::vector<PieceType>& whiteCaps, const std::vector<PieceType>& blackCaps, int p1Adv, int p2Adv);
+
 protected:
     void resizeEvent(QResizeEvent *event) override;
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -58,5 +68,6 @@ private:
     QLabel* rankLabels[8]; // Numbers 1-8 (Rows)
     QLabel* fileLabels[8]; // Letters a-h (Columns)
     QLabel* m_floatingPiece;
+    bool m_isFlipped = false;
 };
 #endif // MAINWINDOW_H

@@ -41,6 +41,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         Player.h
         GameSettings.h
         SettingsDialog.h SettingsDialog.cpp SettingsDialog.ui
+        pieces.cpp
+        MoveValidator.h MoveValidator.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET Chess2_0 APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

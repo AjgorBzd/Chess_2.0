@@ -10,14 +10,24 @@ GameController::GameController(ChessGame *model, MainWindow *view, QObject *pare
     connect(m_view, &MainWindow::settingsSaved, this, &GameController::handleSettingsSaved);
 
     connect(m_view, &MainWindow::squareClicked, this, &GameController::handleSquareClicked);
+    m_matchTimer = new QTimer(this);
+    connect(m_matchTimer, &QTimer::timeout, this, &GameController::onTimerTick);
 
     m_view->applySettingsToUI(currentSettings);
+}
+
+void GameController::onTimerTick() {
+    m_model->decrementCurrentTimer();
+
+    int p1Time = m_model->getPlayer(PieceColor::White).getTimeLeft();
+    int p2Time = m_model->getPlayer(PieceColor::Black).getTimeLeft();
+    m_view->updateTimers(p1Time, p2Time);
 }
 
 void GameController::handlePlayPlayerRequest()
 {
     // 1. Tell the Model to start a fresh game
-    m_model->startNewGame();
+    m_model->startNewGame(currentSettings);
 
 
     // 2. Command the View to change the screen and wipe the history box
@@ -94,18 +104,53 @@ void GameController::handleSquareClicked(int row, int col)
             m_selectedRow = row;
             m_selectedCol = col;
 
+            auto moves = m_model->getLegalMovesForPiece(row, col);
+            m_view->highlightMoves(moves);
+
             PieceType type = m_model->getPieceTypeAt(row, col);
             PieceColor color = m_model->getPieceColorAt(row, col);
             m_view->pickUpPiece(row, col, color, type);
         }
     } else {
         bool moveSuccessful = m_model->attemptMove(m_selectedRow, m_selectedCol, row, col);
+
+        // Start timer if this was White's first successful move
+        if (moveSuccessful && !m_model->hasGameStarted()) {
+            m_model->setGameStarted(true);
+            m_matchTimer->start(1000); // 1 tick per second
+        }
+
         m_isPieceSelected = false;
         m_selectedRow = -1;
         m_selectedCol = -1;
 
+        m_view->clearHighlights();
         m_view->dropPiece();
 
+        // Handle Board Rotation based on the NEW current turn
+        if (currentSettings.autoFlipBoard && m_model->getCurrentTurn() == PieceColor::Black) {
+            m_view->setFlipped(true);
+        } else {
+            m_view->setFlipped(false);
+        }
+
         syncBoardToView();
+
+        m_view->updateHistory(m_model->getHistory());
+
+        Player& w = m_model->getPlayer(PieceColor::White);
+        Player& b = m_model->getPlayer(PieceColor::Black);
+
+        // Calculate Advantage
+        int wAdv = std::max(0, w.getMaterialScore() - b.getMaterialScore());
+        int bAdv = std::max(0, b.getMaterialScore() - w.getMaterialScore());
+
+        m_view->updateCaptures(w.getCapturedPieces(), b.getCapturedPieces(), wAdv, bAdv);
+
+        // Highlights
+        CheckInfo checkInfo = m_model->getCurrentCheckInfo();
+        if (checkInfo.inCheck) {
+            m_view->highlightCheck(checkInfo);
+        }
     }
 }

@@ -3,6 +3,27 @@
 #include "SettingsDialog.h"
 #include <QTimer>
 #include <QMouseEvent>
+#include <QString>
+
+namespace TileStyles {
+inline const QString Base = "border: none; border-radius: 0px; font-weight: bold; font-size: 32px; ";
+
+inline const QString WhiteNormal = Base + "background-color: #e0c08b; color: black;";
+inline const QString BlackNormal = Base + "background-color: #555555; color: white;";
+
+inline const QString WhiteBlue   = Base + "background-color: #8bb5ff; color: black;";
+inline const QString BlackBlue   = Base + "background-color: #55559c; color: white;";
+
+inline const QString WhiteRed    = Base + "background-color: #fb8b8b; color: black;";
+inline const QString BlackRed    = Base + "background-color: #9c5555; color: white;";
+
+inline const QString WhiteGreen  = Base + "background-color: #a5d68b; color: black;";
+inline const QString BlackGreen  = Base + "background-color: #559c55; color: white;";
+
+inline bool isWhiteSquare(int row, int col) {
+    return (row + col) % 2 == 0;
+    }
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -56,14 +77,9 @@ MainWindow::MainWindow(QWidget *parent)
                 btnLayout->addWidget(fileLabels[col], 1, 1, Qt::AlignBottom | Qt::AlignRight);
             }
 
-            if (isLightSquare) {
-                tile->setStyleSheet("background-color: #e0c08b; border: none; border-radius: 0px; color: black;");
-            } else {
-                tile->setStyleSheet("background-color: #555555; border: none; border-radius: 0px; color: white;");
-            }
+            tile->setStyleSheet(isLightSquare ? TileStyles::WhiteNormal : TileStyles::BlackNormal);
 
             connect(tile, &QPushButton::clicked, this, [this, row, col]() {
-                // This tiny invisible function remembers its exact row and col!
                 emit squareClicked(row, col);
             });
 
@@ -94,6 +110,7 @@ void MainWindow::on_btn_playPlayer_clicked()
     ui->pageManager->setCurrentIndex(1);
     resizeBoard();
     emit requestPlayPlayer();
+    this->updateCaptures()
 }
 
 void MainWindow::on_btn_playComputer_clicked()
@@ -313,4 +330,156 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 
     // Let the standard event processing continue
     return QMainWindow::eventFilter(obj, event);
+}
+
+void MainWindow::highlightMoves(const std::vector<LegalMove>& moves) {
+    for (const auto& move : moves) {
+        QLayoutItem* item = ui->gridLayout_Board->itemAtPosition(move.row, move.col);
+        if (item && item->widget()) {
+            QPushButton* tile = qobject_cast<QPushButton*>(item->widget());
+            if (tile) {
+                bool isWhite = TileStyles::isWhiteSquare(move.row, move.col);
+                if (move.isCapture) {
+                    tile->setStyleSheet(isWhite ? TileStyles::WhiteRed : TileStyles::BlackRed);
+                } else {
+                    tile->setStyleSheet(isWhite ? TileStyles::WhiteBlue : TileStyles::BlackBlue);
+                }
+            }
+        }
+    }
+}
+
+void MainWindow::clearHighlights() {
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            QLayoutItem* item = ui->gridLayout_Board->itemAtPosition(r, c);
+            if (item && item->widget()) {
+                QPushButton* tile = qobject_cast<QPushButton*>(item->widget());
+                if (tile) {
+                    tile->setStyleSheet(TileStyles::isWhiteSquare(r, c) ? TileStyles::WhiteNormal : TileStyles::BlackNormal);
+                }
+            }
+        }
+    }
+}
+
+void MainWindow::highlightCheck(const CheckInfo& info) {
+    if (!info.inCheck) return;
+
+    auto paintRed = [&](int r, int c) {
+        QLayoutItem* item = ui->gridLayout_Board->itemAtPosition(r, c);
+        if (item && item->widget()) {
+            QPushButton* tile = qobject_cast<QPushButton*>(item->widget());
+            if (tile) {
+                bool isWhite = TileStyles::isWhiteSquare(r, c);
+                tile->setStyleSheet(isWhite ? TileStyles::WhiteRed : TileStyles::BlackRed);
+            }
+        }
+    };
+
+    paintRed(info.kingPos.row, info.kingPos.col);
+    for (const auto& attacker : info.attackers) {
+        paintRed(attacker.row, attacker.col);
+    }
+}
+
+void MainWindow::updateHistory(const std::vector<MoveRecord>& history) {
+    ui->listWidget_History->clear();
+
+    // Helper lambda to translate pure data into algebraic notation
+    auto formatMove = [](const MoveRecord& m) {
+        QString res = "";
+
+        if (m.pieceMoved == PieceType::Knight) res += "N";
+        else if (m.pieceMoved == PieceType::Bishop) res += "B";
+        else if (m.pieceMoved == PieceType::Rook) res += "R";
+        else if (m.pieceMoved == PieceType::Queen) res += "Q";
+        else if (m.pieceMoved == PieceType::King) res += "K";
+
+        if (m.pieceCaptured != PieceType::Empty) {
+            if (m.pieceMoved == PieceType::Pawn) {
+                res += QChar('a' + m.fromCol);
+            }
+            res += "x";
+        }
+
+        // 3. Destination square
+        res += QChar('a' + m.toCol);
+        res += QString::number(8 - m.toRow);
+
+        // 4. Check symbol '+'
+        if (m.isCheck) {
+            res += "+";
+        }
+
+        return res;
+    };
+
+    int moveNum = 1;
+    QString currentRow = "";
+
+    for (size_t i = 0; i < history.size(); ++i) {
+        if (i % 2 == 0) {
+            currentRow = QString::number(moveNum++) + ". " + formatMove(history[i]);
+
+            if (i == history.size() - 1) {
+                ui->listWidget_History->addItem(currentRow);
+            }
+        } else {
+            currentRow += "   " + formatMove(history[i]);
+            ui->listWidget_History->addItem(currentRow);
+        }
+    }
+
+    ui->listWidget_History->scrollToBottom();
+}
+
+void MainWindow::updateTimers(int p1Seconds, int p2Seconds) {
+    auto formatTime = [](int totalSecs) {
+        return QString("%1:%2").arg(totalSecs / 60, 2, 10, QChar('0'))
+        .arg(totalSecs % 60, 2, 10, QChar('0'));
+    };
+
+    ui->p1Timer->setText(formatTime(p1Seconds));
+    ui->p2Timer->setText(formatTime(p2Seconds));
+}
+
+void MainWindow::updateCaptures(const std::vector<PieceType>& whiteCaps, const std::vector<PieceType>& blackCaps, int p1Adv, int p2Adv) {
+
+    auto buildHtml = [](std::vector<PieceType> pieces, const QString& colorPrefix, int adv) {
+
+        std::sort(pieces.begin(), pieces.end(), [](PieceType a, PieceType b) {
+            auto getRank = [](PieceType t) {
+                if (t == PieceType::Pawn) return 1;
+                if (t == PieceType::Knight) return 2;
+                if (t == PieceType::Bishop) return 3;
+                if (t == PieceType::Rook) return 4;
+                if (t == PieceType::Queen) return 5;
+                return 6;
+            };
+            return getRank(a) < getRank(b);
+        });
+
+        QString html = "";
+        for (auto type : pieces) {
+            QString name;
+            switch(type) {
+            case PieceType::Pawn:   name = "pawn"; break;
+            case PieceType::Knight: name = "knight"; break;
+            case PieceType::Bishop: name = "bishop"; break;
+            case PieceType::Rook:   name = "rook"; break;
+            case PieceType::Queen:  name = "queen"; break;
+            default: break;
+            }
+            html += "<img src=':/images/" + colorPrefix + "_" + name + ".png' width='20' height='20'> ";
+        }
+
+        if (adv > 0) {
+            html += "<span style='color: #a5d68b; font-weight: bold; font-size: 16px;'> +" + QString::number(adv) + "</span>";
+        }
+        return html;
+    };
+
+    ui->p1Captured->setText(buildHtml(whiteCaps, "black", p1Adv));
+    ui->p2Captured->setText(buildHtml(blackCaps, "white", p2Adv));
 }
