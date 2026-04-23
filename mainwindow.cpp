@@ -335,7 +335,9 @@ void MainWindow::highlightMoves(const std::vector<LegalMove>& moves) {
             QPushButton* tile = qobject_cast<QPushButton*>(item->widget());
             if (tile) {
                 bool isWhite = TileStyles::isWhiteSquare(move.row, move.col);
-                if (move.isCapture) {
+                if (move.isSpecial) {
+                    tile->setStyleSheet(isWhite ? TileStyles::WhiteGreen : TileStyles::BlackGreen);
+                } else if (move.isCapture) {
                     tile->setStyleSheet(isWhite ? TileStyles::WhiteRed : TileStyles::BlackRed);
                 } else {
                     tile->setStyleSheet(isWhite ? TileStyles::WhiteBlue : TileStyles::BlackBlue);
@@ -383,26 +385,34 @@ void MainWindow::highlightCheck(const CheckInfo& info) {
 void MainWindow::updateHistory(const std::vector<MoveRecord>& history) {
     ui->listWidget_History->clear();
 
-    // Helper lambda to translate pure data into algebraic notation
     auto formatMove = [](const MoveRecord& m) {
         QString res = "";
 
-        if (m.pieceMoved == PieceType::Knight) res += "N";
-        else if (m.pieceMoved == PieceType::Bishop) res += "B";
-        else if (m.pieceMoved == PieceType::Rook) res += "R";
-        else if (m.pieceMoved == PieceType::Queen) res += "Q";
-        else if (m.pieceMoved == PieceType::King) res += "K";
-
-        if (m.pieceCaptured != PieceType::Empty) {
-            if (m.pieceMoved == PieceType::Pawn) {
-                res += QChar('a' + m.fromCol);
-            }
-            res += "x";
+        if (m.isShortCastling) {
+            res = "O-O";
         }
+        else if (m.isLongCastling) {
+            res = "O-O-O";
+        }
+        else
+        {
+            if (m.pieceMoved == PieceType::Knight) res += "N";
+            else if (m.pieceMoved == PieceType::Bishop) res += "B";
+            else if (m.pieceMoved == PieceType::Rook) res += "R";
+            else if (m.pieceMoved == PieceType::Queen) res += "Q";
+            else if (m.pieceMoved == PieceType::King) res += "K";
 
-        // 3. Destination square
-        res += QChar('a' + m.toCol);
-        res += QString::number(8 - m.toRow);
+            if (m.pieceCaptured != PieceType::Empty) {
+                if (m.pieceMoved == PieceType::Pawn) {
+                    res += QChar('a' + m.fromCol);
+                }
+                res += "x";
+            }
+
+            // 3. Destination square
+            res += QChar('a' + m.toCol);
+            res += QString::number(8 - m.toRow);
+        }
 
         // 4. Check symbol '+'
         if (m.isCheck) {

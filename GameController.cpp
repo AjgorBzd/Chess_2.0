@@ -177,6 +177,13 @@ void GameController::handleUndoMoveRequest() {
         m_selectedCol = -1;
         m_view->clearHighlights();
 
+        m_view->updateTimers(m_model->getPlayer(PieceColor::White).getTimeLeft(),
+                             m_model->getPlayer(PieceColor::Black).getTimeLeft());
+
+        bool shouldBeFlipped = (currentSettings.autoFlipBoard && m_model->getCurrentTurn() == PieceColor::Black);
+        m_view->setFlipped(shouldBeFlipped);
+        m_view->drawCoordinates(shouldBeFlipped ? PieceColor::Black : PieceColor::White);
+
         syncBoardToView();
 
         m_view->updateHistory(m_model->getHistory());
@@ -192,7 +199,6 @@ void GameController::handleUndoMoveRequest() {
         } else {
             m_view->setFlipped(false);
         }
-        m_view->drawCoordinates(m_model->getCurrentTurn());
         CheckInfo checkInfo = m_model->getCurrentCheckInfo();
         if (checkInfo.inCheck) {
             m_view->highlightCheck(checkInfo);

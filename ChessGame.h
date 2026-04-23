@@ -2,7 +2,7 @@
 #define CHESSGAME_H
 
 #include <QObject>
-#include "ChessBoard.h"
+#include "Chessboard.h"
 #include "Player.h"
 #include "MoveValidator.h"
 #include "GameSettings.h"

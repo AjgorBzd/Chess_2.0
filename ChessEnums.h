@@ -26,6 +26,7 @@ struct LegalMove {
     int row;
     int col;
     bool isCapture;
+    bool isSpecial = false;
 };
 
 struct CheckInfo {
@@ -48,10 +49,13 @@ struct MoveRecord {
     bool isCheckmate = false;
     bool isShortCastling = false;
     bool isLongCastling = false;
+    bool isEnPassant = false;
     bool isPromotionToQueen = false;
     bool isPromotionToRook = false;
     bool isPromotionToKnight = false;
     bool isPromotionToBishop = false;
 
+    int p1Time;
+    int p2Time;
 };
 

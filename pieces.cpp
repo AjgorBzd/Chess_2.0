@@ -1,5 +1,5 @@
 #include "pieces.h"
-#include "ChessBoard.h"
+#include "Chessboard.h"
 
 std::vector<Position> Knight::getBasicLegalMoves(int myRow, int myCol, const ChessBoard& board) const {
     std::vector<Position> moves;

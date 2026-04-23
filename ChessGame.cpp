@@ -40,6 +40,15 @@ bool ChessGame::attemptMove(int fromRow, int fromCol, int toRow, int toCol) {
     PieceType movingPiece = getPieceTypeAt(fromRow, fromCol);
     PieceType captured = getPieceTypeAt(toRow, toCol);
 
+    bool isEnPassant = (movingPiece == PieceType::Pawn && std::abs(fromCol - toCol) == 1 && captured == PieceType::Empty);
+    bool isShortCastle = (movingPiece == PieceType::King && toCol - fromCol == 2);
+    bool isLongCastle = (movingPiece == PieceType::King && fromCol - toCol == 2);
+
+    if (isEnPassant) {
+        captured = PieceType::Pawn;
+        board.setPieceAt(fromRow, toCol, std::make_shared<EmptyPiece>());
+    }
+
     if (captured != PieceType::Empty) {
         getPlayer(currentTurn).addCapturedPiece(captured);
     }
@@ -53,8 +62,19 @@ bool ChessGame::attemptMove(int fromRow, int fromCol, int toRow, int toCol) {
     record.playerColor = currentTurn;
     record.pieceCaptured = captured;
     record.isFirstMove = !board.getPieceAt(fromRow, fromCol)->hasMoved();
+    record.isEnPassant = isEnPassant;
+    record.isShortCastling = isShortCastle;
+    record.isLongCastling = isLongCastle;
+    record.p1Time = playerWhite.getTimeLeft();
+    record.p2Time = playerBlack.getTimeLeft();
 
     board.movePiece(fromRow, fromCol, toRow, toCol);
+
+    if (isShortCastle) {
+        board.movePiece(fromRow, 7, toRow, 5);
+    } else if (isLongCastle) {
+        board.movePiece(fromRow, 0, toRow, 3);
+    }
 
     PieceColor enemyColor = (currentTurn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
     CheckInfo enemyCheck = MoveValidator::getCheckInfo(enemyColor, board);
@@ -78,7 +98,7 @@ std::vector<LegalMove> ChessGame::getLegalMovesForPiece(int row, int col) {
     if (getPieceColorAt(row, col) != currentTurn) {
         return {};
     }
-    return MoveValidator::getLegalMoves(row, col, board);
+    return MoveValidator::getLegalMoves(row, col, board, moveHistory);
 }
 
 CheckInfo ChessGame::getCurrentCheckInfo() const {
@@ -105,7 +125,18 @@ bool ChessGame::undoLastMove() {
         board.getPieceAt(lastMove.fromRow, lastMove.fromCol)->setMoved(false);
     }
 
+    if (lastMove.isShortCastling) {
+        board.setPieceAt(lastMove.fromRow, 7, board.getPieceAt(lastMove.toRow, 5));
+        board.setPieceAt(lastMove.toRow, 5, std::make_shared<EmptyPiece>());
+        board.getPieceAt(lastMove.fromRow, 7)->setMoved(false);
+    } else if (lastMove.isLongCastling) {
+        board.setPieceAt(lastMove.fromRow, 0, board.getPieceAt(lastMove.toRow, 3));
+        board.setPieceAt(lastMove.toRow, 3, std::make_shared<EmptyPiece>());
+        board.getPieceAt(lastMove.fromRow, 0)->setMoved(false);
+    }
+
     PieceColor enemyColor = (lastMove.playerColor == PieceColor::White) ? PieceColor::Black : PieceColor::White;
+
     std::shared_ptr<Piece> restoredPiece = std::make_shared<EmptyPiece>();
 
     if (lastMove.pieceCaptured != PieceType::Empty) {
@@ -118,8 +149,19 @@ bool ChessGame::undoLastMove() {
         default: break;
         }
         getPlayer(lastMove.playerColor).popCapturedPiece();
+
+        if (lastMove.isEnPassant) {
+            board.setPieceAt(lastMove.fromRow, lastMove.toCol, restoredPiece);
+            board.setPieceAt(lastMove.toRow, lastMove.toCol, std::make_shared<EmptyPiece>());
+        } else {
+            board.setPieceAt(lastMove.toRow, lastMove.toCol, restoredPiece);
+        }
+    } else if (!lastMove.isEnPassant) {
+        board.setPieceAt(lastMove.toRow, lastMove.toCol, std::make_shared<EmptyPiece>());
     }
-    board.setPieceAt(lastMove.toRow, lastMove.toCol, restoredPiece);
+
+    playerWhite.setTimeLeft(lastMove.p1Time);
+    playerBlack.setTimeLeft(lastMove.p2Time);
 
     currentTurn = lastMove.playerColor;
 
