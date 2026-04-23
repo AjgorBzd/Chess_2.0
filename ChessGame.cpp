@@ -99,6 +99,9 @@ bool ChessGame::attemptMove(int fromRow, int fromCol, int toRow, int toCol, Piec
     record.isCheck = enemyCheck.inCheck;
 
     moveHistory.push_back(record);
+
+    getPlayer(currentTurn).applyIncrement();
+
     currentTurn = enemyColor;
 
     if (!MoveValidator::hasAnyLegalMoves(currentTurn, board, moveHistory)) {
@@ -140,9 +143,11 @@ CheckInfo ChessGame::getCurrentCheckInfo() const {
 void ChessGame::applySettings(const GameSettings& settings) {
     playerWhite.setName(settings.p1Name);
     playerWhite.setTimeLeft(settings.p1BaseTimeSeconds);
+    playerWhite.setIncrement(settings.p1IncrementSeconds);
 
     playerBlack.setName(settings.p2Name);
     playerBlack.setTimeLeft(settings.p2BaseTimeSeconds);
+    playerBlack.setIncrement(settings.p2IncrementSeconds);
 }
 
 bool ChessGame::undoLastMove() {
@@ -203,4 +208,3 @@ bool ChessGame::undoLastMove() {
 
     return true;
 }
-
