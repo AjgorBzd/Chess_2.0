@@ -4,6 +4,9 @@
 #include <QTimer>
 #include <QMouseEvent>
 #include <QString>
+#include <QDialog>
+#include <QHBoxLayout>
+#include <QPushButton>
 
 namespace TileStyles {
 inline const QString Base = "border: none; border-radius: 0px; font-weight: bold; font-size: 32px; ";
@@ -408,13 +411,15 @@ void MainWindow::updateHistory(const std::vector<MoveRecord>& history) {
                 }
                 res += "x";
             }
-
-            // 3. Destination square
             res += QChar('a' + m.toCol);
             res += QString::number(8 - m.toRow);
         }
 
-        // 4. Check symbol '+'
+        if (m.isPromotionToQueen) res += "=Q";
+        else if (m.isPromotionToRook) res += "=R";
+        else if (m.isPromotionToBishop) res += "=B";
+        else if (m.isPromotionToKnight) res += "=N";
+
         if (m.isCheck) {
             res += "+";
         }
@@ -511,4 +516,67 @@ void MainWindow::setFlipped(bool flipped) {
         m_isFlipped = flipped;
         drawCoordinates(m_isFlipped ? PieceColor::Black : PieceColor::White);
     }
+}
+
+PieceType MainWindow::showPromotionDialog(PieceColor color, int logicalRow, int logicalCol) {
+    QDialog dialog(this);
+    dialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Popup);
+    dialog.setStyleSheet("QDialog { background-color: #2b2b2b; border: 2px solid #555555; border-radius: 8px; }");
+
+    QHBoxLayout* layout = new QHBoxLayout(&dialog);
+    layout->setContentsMargins(10, 10, 10, 10);
+    layout->setSpacing(10);
+
+    PieceType selectedPiece = PieceType::Empty;
+    QString prefix = (color == PieceColor::White) ? "white_" : "black_";
+
+    auto addButton = [&](PieceType type, const QString& iconName) {
+        QPushButton* btn = new QPushButton(&dialog);
+        btn->setIcon(QIcon(":/images/" + prefix + iconName + ".png"));
+        btn->setIconSize(QSize(45, 45));
+        btn->setFixedSize(60, 60);
+        btn->setStyleSheet("QPushButton { background-color: #404040; border: none; border-radius: 5px; } "
+                           "QPushButton:hover { background-color: #55559c; }");
+
+        connect(btn, &QPushButton::clicked, [&dialog, &selectedPiece, type]() {
+            selectedPiece = type;
+            dialog.accept();
+        });
+        layout->addWidget(btn);
+    };
+
+    addButton(PieceType::Queen, "queen");
+    addButton(PieceType::Rook, "rook");
+    addButton(PieceType::Bishop, "bishop");
+    addButton(PieceType::Knight, "knight");
+
+
+    QPushButton* cancelBtn = new QPushButton("X", &dialog);
+    cancelBtn->setFixedSize(40, 60);
+    cancelBtn->setStyleSheet("QPushButton { color: #fb8b8b; font-weight: bold; font-size: 24px; border: none; background: transparent; } "
+                             "QPushButton:hover { color: #ff0000; }");
+    connect(cancelBtn, &QPushButton::clicked, &dialog, &QDialog::reject);
+    layout->addWidget(cancelBtn);
+
+    QWidget* tile = ui->gridLayout_Board->itemAtPosition(mapFlippedCoord(logicalRow), mapFlippedCoord(logicalCol))->widget();
+    if (tile) {
+        dialog.adjustSize();
+
+        QPoint globalPos = tile->mapToGlobal(QPoint(0, 0));
+        int targetX = globalPos.x() - (dialog.width() / 4);
+        int targetY = globalPos.y() - 30;
+
+        QRect windowRect = this->geometry();
+
+        if (targetX < windowRect.left()) targetX = windowRect.left() + 10;
+        if (targetX + dialog.width() > windowRect.right()) targetX = windowRect.right() - dialog.width() - 10;
+
+        if (targetY < windowRect.top()) targetY = windowRect.top() + 10;
+        if (targetY + dialog.height() > windowRect.bottom()) targetY = windowRect.bottom() - dialog.height() - 10;
+
+        dialog.move(targetX, targetY);
+    }
+
+    dialog.exec();
+    return selectedPiece;
 }

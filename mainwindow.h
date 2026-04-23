@@ -63,6 +63,8 @@ public:
     int mapFlippedCoord(int coord) const { return m_isFlipped ? 7 - coord : coord; }
     void setFlipped(bool flipped);
 
+    PieceType showPromotionDialog(PieceColor color, int logicalRow, int logicalCol);
+
 protected:
     void resizeEvent(QResizeEvent *event) override;
     bool eventFilter(QObject *obj, QEvent *event) override;

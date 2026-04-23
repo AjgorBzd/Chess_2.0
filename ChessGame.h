@@ -33,7 +33,7 @@ public:
     Player& getPlayer(PieceColor color) {
         return (color == PieceColor::White) ? playerWhite : playerBlack;
     }
-    bool attemptMove(int fromRow, int fromCol, int toRow, int toCol);
+    bool attemptMove(int fromRow, int fromCol, int toRow, int toCol, PieceType promotionPiece = PieceType::Empty);
     bool canPickUp(int row, int col) const;
 
     std::vector<LegalMove> getLegalMovesForPiece(int row, int col);

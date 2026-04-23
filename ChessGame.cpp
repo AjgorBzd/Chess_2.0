@@ -28,7 +28,7 @@ void ChessGame::switchTurn() {
     currentTurn = (currentTurn == PieceColor::White) ? PieceColor::Black : PieceColor::White;
 }
 
-bool ChessGame::attemptMove(int fromRow, int fromCol, int toRow, int toCol) {
+bool ChessGame::attemptMove(int fromRow, int fromCol, int toRow, int toCol, PieceType promotionPiece) {
     auto legalMoves = getLegalMovesForPiece(fromRow, fromCol);
 
     bool isLegal = false;
@@ -69,6 +69,23 @@ bool ChessGame::attemptMove(int fromRow, int fromCol, int toRow, int toCol) {
     record.p2Time = playerBlack.getTimeLeft();
 
     board.movePiece(fromRow, fromCol, toRow, toCol);
+
+    if (promotionPiece != PieceType::Empty) {
+        std::shared_ptr<Piece> newPiece;
+        switch(promotionPiece) {
+        case PieceType::Queen: newPiece = std::make_shared<Queen>(currentTurn); break;
+        case PieceType::Rook: newPiece = std::make_shared<Rook>(currentTurn); break;
+        case PieceType::Bishop: newPiece = std::make_shared<Bishop>(currentTurn); break;
+        case PieceType::Knight: newPiece = std::make_shared<Knight>(currentTurn); break;
+        default: break;
+        }
+        board.setPieceAt(toRow, toCol, newPiece);
+
+        record.isPromotionToQueen = (promotionPiece == PieceType::Queen);
+        record.isPromotionToRook = (promotionPiece == PieceType::Rook);
+        record.isPromotionToBishop = (promotionPiece == PieceType::Bishop);
+        record.isPromotionToKnight = (promotionPiece == PieceType::Knight);
+    }
 
     if (isShortCastle) {
         board.movePiece(fromRow, 7, toRow, 5);
@@ -119,7 +136,11 @@ bool ChessGame::undoLastMove() {
     MoveRecord lastMove = moveHistory.back();
     moveHistory.pop_back();
 
-    board.setPieceAt(lastMove.fromRow, lastMove.fromCol, board.getPieceAt(lastMove.toRow, lastMove.toCol));
+    if (lastMove.isPromotionToQueen || lastMove.isPromotionToRook || lastMove.isPromotionToBishop || lastMove.isPromotionToKnight) {
+        board.setPieceAt(lastMove.fromRow, lastMove.fromCol, std::make_shared<Pawn>(lastMove.playerColor));
+    } else {
+        board.setPieceAt(lastMove.fromRow, lastMove.fromCol, board.getPieceAt(lastMove.toRow, lastMove.toCol));
+    }
 
     if (lastMove.isFirstMove) {
         board.getPieceAt(lastMove.fromRow, lastMove.fromCol)->setMoved(false);

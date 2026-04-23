@@ -126,12 +126,39 @@ void GameController::handleSquareClicked(int row, int col)
             m_view->pickUpPiece(row, col, color, type);
         }
     } else {
-        bool moveSuccessful = m_model->attemptMove(m_selectedRow, m_selectedCol, row, col);
+        m_view->dropPiece();
+        PieceType movingPiece = m_model->getPieceTypeAt(m_selectedRow, m_selectedCol);
+        PieceType promotionChoice = PieceType::Empty;
 
-        // Start timer if this was White's first successful move
+        if (movingPiece == PieceType::Pawn && (row == 0 || row == 7)) {
+            auto legalMoves = m_model->getLegalMovesForPiece(m_selectedRow, m_selectedCol);
+            bool isLegal = false;
+            for (const auto& m : legalMoves) {
+                if (m.row == row && m.col == col) { isLegal = true; break; }
+            }
+
+            if (isLegal) {
+                m_view->setSquare(m_selectedRow, m_selectedCol, PieceColor::None, PieceType::Empty);
+                m_view->setSquare(row, col, m_model->getCurrentTurn(), PieceType::Pawn);
+                syncBoardToView();
+
+                promotionChoice = m_view->showPromotionDialog(m_model->getCurrentTurn(), row, col);
+
+                if (promotionChoice == PieceType::Empty) {
+                    m_isPieceSelected = false;
+                    m_selectedRow = -1;
+                    m_selectedCol = -1;
+                    m_view->clearHighlights();
+                    syncBoardToView();
+                    return;
+                }
+            }
+        }
+        bool moveSuccessful = m_model->attemptMove(m_selectedRow, m_selectedCol, row, col, promotionChoice);
+
         if (moveSuccessful && !m_model->hasGameStarted()) {
             m_model->setGameStarted(true);
-            m_matchTimer->start(1000); // 1 tick per second
+            m_matchTimer->start(1000);
         }
 
         m_isPieceSelected = false;
@@ -139,9 +166,7 @@ void GameController::handleSquareClicked(int row, int col)
         m_selectedCol = -1;
 
         m_view->clearHighlights();
-        m_view->dropPiece();
 
-        // Handle Board Rotation based on the NEW current turn
         if (currentSettings.autoFlipBoard && m_model->getCurrentTurn() == PieceColor::Black) {
             m_view->setFlipped(true);
         } else {
